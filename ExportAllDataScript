@@ -1,0 +1,70 @@
+try {
+
+// Delete old Export Data
+// result: INFOTABLE dataShape: "FileSystemFile"
+var Foldernames =  Things["SystemRepository"].ListDirectories({
+	path: '/' /* STRING */,
+//	nameMask: undefined /* STRING */ 
+	});
+  
+// Check if ExportProject folder exists
+var tableLength = Foldernames.rows.length;
+for (var x=0; x < tableLength; x++) 
+{
+var row = Foldernames.rows[x];
+  
+    if(row['name'] == 'ExportAllData')
+    {
+        Things["SystemRepository"].DeleteFolder({
+    	path: '/ExportAllData/' /* STRING */ }); 
+    }
+    
+    if(row['name'] == 'ExportAllDatazip')
+    {
+        Things["SystemRepository"].DeleteFolder({
+    	path: '/ExportAllDatazip/' /* STRING */ });
+        break;
+    }
+} 
+//var exportURL = "http://localhost:8080"+"/Thingworx/DataExporter/?Accept=application/octet-stream&searchTags="+"TestImport:Test1"+"&repositoryName="+"SystemRepository"+"&path="+"/ExportAllData/";
+var exportURL = "http://localhost:8080"+"/Thingworx/DataExporter/?Accept=application/octet-stream&repositoryName="+"SystemRepository"+"&path="+"/ExportAllData/";
+
+    var params = {
+	headers: { appkey :'b8ef53ee-79fc-4e7c-2345-3a4456e43113'
+    } /* JSON */,
+	ignoreSSLErrors: 'True' /* BOOLEAN */,
+	url: exportURL /* STRING */,
+
+};
+        
+// result: STRING
+var result = Resources["ContentLoaderFunctions"].GetText(params);
+ logger.error("Export of All Data is Successful");
+ 
+    pause(10000);
+// Logic to Create Zip out of Exported Data
+ //result: INFOTABLE dataShape: "FileSystemDirectory"
+var DataFoldernames =  Things["SystemRepository"].ListDirectories({
+	path: '/ExportAllData' /* STRING */,
+//	nameMask: undefined /* STRING */
+});
+
+var zipfilename;
+
+          var row1 = DataFoldernames.rows[0];
+          zipfilename = row1['name'] + ".zip" ;  
+        // result: BOOLEAN
+            Things["SystemRepository"].CreateZipArchive({
+            	path: '/ExportAllDatazip/' /* STRING */, //Path where files will be created
+            	newFileName: zipfilename /* STRING */,
+            	files: row1['path'] /* STRING */ //Files to add to repository
+            });
+            
+            logger.error("zipfile Created - " + zipfilename );
+
+} catch(err) {
+	logger.error(me.name + "ExportAllDataEntities() Fatal Error on line " + err.lineNumber + ": " + err);
+    
+}
+
+
