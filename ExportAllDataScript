@@ -9,17 +9,17 @@ var Foldernames =  Things["SystemRepository"].ListDirectories({
   
 // Check if ExportProject folder exists
 var tableLength = Foldernames.rows.length;
-for (var x=0; x < tableLength; x++) 
+for (var x = 0; x < tableLength; x++) 
 {
 var row = Foldernames.rows[x];
   
-    if(row['name'] == 'ExportAllData')
+    if (row['name'] == 'ExportAllData')
     {
         Things["SystemRepository"].DeleteFolder({
     	path: '/ExportAllData/' /* STRING */ }); 
     }
     
-    if(row['name'] == 'ExportAllDatazip')
+    if (row['name'] == 'ExportAllDatazip')
     {
         Things["SystemRepository"].DeleteFolder({
     	path: '/ExportAllDatazip/' /* STRING */ });
@@ -32,7 +32,7 @@ var exportURL = "http://localhost:8080"+"/Thingworx/DataExporter/?Accept=applica
     var params = {
 	headers: { appkey :'b8ef53ee-79fc-4e7c-2345-3a4456e43113'
     } /* JSON */,
-	ignoreSSLErrors: 'True' /* BOOLEAN */,
+	ignoreSSLErrors: true /* BOOLEAN */,
 	url: exportURL /* STRING */,
 
 };
@@ -51,6 +51,7 @@ var DataFoldernames =  Things["SystemRepository"].ListDirectories({
 
 var zipfilename;
 
+if (DataFoldernames.rows.length > 0) {
           var row1 = DataFoldernames.rows[0];
           zipfilename = row1['name'] + ".zip" ;  
         // result: BOOLEAN
@@ -59,7 +60,10 @@ var zipfilename;
             	newFileName: zipfilename /* STRING */,
             	files: row1['path'] /* STRING */ //Files to add to repository
             });
-            
+} else {
+            logger.error("No data found in /ExportAllData directory.");
+}
+	logger.error(me.name + " ExportAllDataEntities() Fatal Error on line " + err.lineNumber + ": " + err.message + "\nStack Trace: " + err.stack);
             logger.error("zipfile Created - " + zipfilename );
 
 } catch(err) {
